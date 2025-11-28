@@ -16,14 +16,18 @@ public class Player : MonoBehaviour
     [SerializeField] private float rayMaxDistance = 10f;
     [SerializeField] private float offsetX = 0.5f;
     [SerializeField] private float offsetY = 0.5f;
+    [SerializeField] private float speedWayBoostMultiplier = 3f;
     [SerializeField] private bool IsCarryingKey = false;
     [SerializeField] private GameObject Door;
+    [SerializeField] private GameObject swordSprite;
     [SerializeField] private LayerMask wallLayerMask;
-    
+
+    public EventHandler OnEnemyKilled;
     
     private Rigidbody2D rb2D;
     private Vector2 movementInput;
     private BoxCollider2D boxCollider2D;
+    private bool hasSwordEquipped = false;
     
     
     
@@ -34,6 +38,7 @@ public class Player : MonoBehaviour
         Instance = this;
         rb2D = GetComponent<Rigidbody2D>();
         boxCollider2D = GetComponent<BoxCollider2D>();
+        swordSprite.SetActive(false);
 
     }
 
@@ -84,9 +89,19 @@ public class Player : MonoBehaviour
     {
         if (other.gameObject.TryGetComponent(out Wall wall))
         {
-            Destroy(gameObject);
-            SceneManager.LoadScene(0);
+            Death();
         }
+
+        if (other.gameObject.TryGetComponent(out Enemy enemy) == hasSwordEquipped)
+        {
+            Destroy(other.gameObject);
+            OnEnemyKilled?.Invoke(this, EventArgs.Empty);
+        }
+        else
+        {
+            Death();
+        }
+        
     }
 
     //Überprüft ob Tür betretbar ist
@@ -96,9 +111,46 @@ public class Player : MonoBehaviour
         {
             Destroy(Door);
         }
+
+        if (other.TryGetComponent(out SwordPickup sword))
+        {
+            hasSwordEquipped = true;
+            swordSprite.SetActive(true);
+            
+        }
+
+        if (other.TryGetComponent(out SpeedWay speedWay))
+        {
+            playerMovementSpeed += speedWayBoostMultiplier;
+        }
+        
+        
+        if(other.TryGetComponent(out Goal goal))
+        {
+            GameManager.Instance.LoadNextLevel();
+        }
+
     }
-    
-   
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.TryGetComponent(out SpeedWay speedWay))
+        {
+            playerMovementSpeed -= speedWayBoostMultiplier;
+        }
+        
+    }
+
+    private void Death()
+    {
+        Destroy(gameObject);
+        SceneManager.LoadScene(0);
+    }
+
+    public void KillMobility()
+    {
+        rb2D.linearVelocity = Vector2.zero;
+    }
 
 
     //Checken ob der Charakter nahe einer Wand ist.
@@ -143,5 +195,7 @@ public class Player : MonoBehaviour
 
         return 0;
     }
+    
+    
     
 }
