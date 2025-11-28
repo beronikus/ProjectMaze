@@ -6,8 +6,8 @@ public class Player : MonoBehaviour
 {
     public static Player Instance { get; private set; }
 
+    [SerializeField] private int enemyKilled = 0;
     [SerializeField] private float playerMovementSpeed = 1f;
-    [SerializeField] private float playerRotationSpeed = 100f;
     [SerializeField] private float speedMultiplier = 0.5f;
     [SerializeField] private float raycastLengthUp = 0.2f;
     [SerializeField] private float raycastLengthDown = 0.2f;
@@ -23,11 +23,12 @@ public class Player : MonoBehaviour
     [SerializeField] private LayerMask wallLayerMask;
 
     public EventHandler OnEnemyKilled;
+    public EventHandler OnEnemySecondKilled;
     
     private Rigidbody2D rb2D;
     private Vector2 movementInput;
     private BoxCollider2D boxCollider2D;
-    private bool hasSwordEquipped = false;
+    private bool hasSwordEquipped;
     
     
     
@@ -38,6 +39,7 @@ public class Player : MonoBehaviour
         Instance = this;
         rb2D = GetComponent<Rigidbody2D>();
         boxCollider2D = GetComponent<BoxCollider2D>();
+        hasSwordEquipped = false;
         swordSprite.SetActive(false);
 
     }
@@ -91,16 +93,36 @@ public class Player : MonoBehaviour
         {
             Death();
         }
+        else if (other.gameObject.TryGetComponent(out Enemy enemy))
+        {
+            if (hasSwordEquipped)
+            {
 
-        if (other.gameObject.TryGetComponent(out Enemy enemy) == hasSwordEquipped)
-        {
-            Destroy(other.gameObject);
-            OnEnemyKilled?.Invoke(this, EventArgs.Empty);
+                Destroy(other.gameObject);
+                OnEnemyKilled?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                Death();
+            }
         }
-        else
+        else if (other.gameObject.TryGetComponent(out EnemySecond enemySecond))
         {
-            Death();
+            if (hasSwordEquipped)
+            {
+                Destroy(other.gameObject);
+                enemyKilled++;
+                if (enemyKilled == 7)
+                {
+                    OnEnemySecondKilled?.Invoke(this, EventArgs.Empty);
+                }
+            }
+            else
+            {
+                Death();
+            }
         }
+        
         
     }
 
@@ -144,8 +166,8 @@ public class Player : MonoBehaviour
     private void Death()
     {
         Destroy(gameObject);
-        SceneManager.LoadScene(0);
-    }
+      SceneManager.LoadScene(0);
+   }
 
     public void KillMobility()
     {

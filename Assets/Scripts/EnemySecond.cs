@@ -1,14 +1,11 @@
-using System;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
-public class Enemy : MonoBehaviour
+public class EnemySecond : MonoBehaviour
 {
-
-    
     [SerializeField] private float enemyMovementSpeed;
     [SerializeField] private  int direction = 1;
     [SerializeField] private bool canMove = true;
+    [SerializeField] private bool canMoveUp;
     private Rigidbody2D rb2D;
 
     private void Awake()
@@ -23,6 +20,11 @@ public class Enemy : MonoBehaviour
         if (canMove)
         {
             rb2D.linearVelocity = new Vector2(direction * enemyMovementSpeed, rb2D.linearVelocity.y);
+        }
+
+        if (canMoveUp)
+        {
+            rb2D.linearVelocity = new Vector2(rb2D.linearVelocity.x, direction * enemyMovementSpeed);
         }
     }
 
@@ -40,6 +42,7 @@ public class Enemy : MonoBehaviour
         {
             direction *= -1;
         }
+        
     }
     
 }
