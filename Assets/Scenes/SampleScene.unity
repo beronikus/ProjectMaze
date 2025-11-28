@@ -151,8 +151,6 @@ MonoBehaviour:
   levelPrefabs:
   - {fileID: 2984672491028105797, guid: 2630ab58d3db17046b89e11e571b4ea8, type: 3}
   - {fileID: 8897976974985650568, guid: 568aab157aeab334eb82b3663534cb03, type: 3}
-  - {fileID: 0}
-  - {fileID: 0}
   playerStartPosition: {fileID: 3449045}
 --- !u!4 &3449045
 Transform:

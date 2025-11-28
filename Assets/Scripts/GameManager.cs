@@ -9,7 +9,8 @@ public class GameManager : MonoBehaviour
    [SerializeField] private List<GameObject> levelPrefabs;
    private GameObject currentLevelInstance;
    [SerializeField] private Transform playerStartPosition;
-   private int currentLevelIndex = 0;
+   private static int currentLevelIndex = 0;
+   
 
 
 
@@ -25,25 +26,32 @@ public class GameManager : MonoBehaviour
        LoadLevelZero();
    }
 
+   private void FixedUpdate()
+   {
+       Debug.Log(currentLevelIndex);
+   }
+
    private void LoadLevelZero()
    {
+       
+       Destroy(currentLevelInstance);
        currentLevelInstance = Instantiate(levelPrefabs[currentLevelIndex]);
    }
 
    public void LoadNextLevel()
    {
-       if (currentLevelIndex < levelPrefabs.Count)
-       {
+           if (currentLevelIndex >= levelPrefabs.Count-1)
+           {
+               currentLevelIndex = 0;
+               LoadLevelZero();
+               return;
+           }
+
            currentLevelIndex++;
            Destroy(currentLevelInstance);
            currentLevelInstance = Instantiate(levelPrefabs[currentLevelIndex]);
            Player.Instance.gameObject.transform.position = playerStartPosition.position;
            Player.Instance.KillMobility();
-       }
-       else
-       {
-           LoadLevelZero();
-       }
    }
    
    
